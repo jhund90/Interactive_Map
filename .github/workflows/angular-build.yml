@@ -27,23 +27,34 @@ jobs:
         with:
           node-version: 20
 
-      # 👇 VERY IMPORTANT — run npm install INSIDE /world
-      - name: Install dependencies
+      - name: Install dependencies (world)
         working-directory: world
         run: npm install --no-audit --no-fund
 
-      # 👇 ALSO IMPORTANT — run ng build INSIDE /world
-      - name: Build Angular
+      - name: Build Angular (→ world/docs)
         working-directory: world
         run: npm run build
 
-      # 👇 Make 404.html INSIDE /world
-      - name: Create 404.html
+      - name: Inspect build output
         working-directory: world
-        run: cp docs/index.html docs/404.html
+        run: |
+          echo "Contents of world after build:"
+          ls -la
+          echo "Contents of world/docs (if exists):"
+          if [ -d docs ]; then ls -la docs; else echo "::warning::world/docs does not exist"; fi
 
-      # 👇 Upload the OUTPUT from /world/docs/
-      - name: Upload docs folder
+      - name: Create 404.html (only if index.html exists)
+        working-directory: world
+        run: |
+          if [ -f docs/index.html ]; then
+            cp docs/index.html docs/404.html
+            echo "Created docs/404.html"
+          else
+            echo "::error::docs/index.html not found. The Angular build did not write to world/docs."
+            exit 1
+          fi
+
+      - name: Upload docs
         uses: actions/upload-pages-artifact@v3
         with:
           path: world/docs/
