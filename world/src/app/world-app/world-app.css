@@ -1,0 +1,44 @@
+.title {    
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;    
+    text-align: center;
+}
+
+.stats {
+    position: relative;
+    background-color: rgb(219, 176, 120);
+    left: 72%;
+    top: -625px;
+    width: 375px;
+    border-radius: 10px;
+    padding: 20px 20px;
+    justify-content: left;
+    align-content: flex-start;
+}
+
+
+svg path:hover {
+    fill: red;
+    cursor: pointer;
+}
+
+.card2 {
+    position: relative;
+    flex: 1;
+    max-width: 100%;
+    margin: 0;
+    padding-left: 50px;
+    padding-top: 40px;
+}
+
+svg {
+    height: 500px;
+    width: auto;
+    padding: 65px;
+    border: 5px solid black;
+}
+
+.row1, .row2 {
+    width: 100%;
+    display: flex;
+}
