@@ -23,26 +23,26 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses:actions/setup-node@v4
         with:
           node-version: 20
 
-      # ⬇️ RUN npm install INSIDE /world
+      # 👇 VERY IMPORTANT — run npm install INSIDE /world
       - name: Install dependencies
         working-directory: world
         run: npm install --no-audit --no-fund
 
-      # ⬇️ BUILD Angular INSIDE /world
-      - name: Build Angular (production → docs/)
+      # 👇 ALSO IMPORTANT — run ng build INSIDE /world
+      - name: Build Angular
         working-directory: world
         run: npm run build
 
-      # ⬇️ CREATE 404.html INSIDE /world
+      # 👇 Make 404.html INSIDE /world
       - name: Create 404.html
         working-directory: world
         run: cp docs/index.html docs/404.html
 
-      # ⬇️ UPLOAD /world/docs AS THE WEBSITE
+      # 👇 Upload the OUTPUT from /world/docs/
       - name: Upload docs folder
         uses: actions/upload-pages-artifact@v3
         with:
