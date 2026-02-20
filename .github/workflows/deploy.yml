@@ -8,16 +8,22 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm' # Speeds up build and prevents hanging
+
       - name: Install and Build
         run: |
           npm install
           npx ng build --configuration production --base-href /${{ github.event.repository.name }}/
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/*/browser # This wildcard finds the folder automatically
-          branch: gh-pages
+          folder: dist/*/browser # Wildcard handles Angular 17+ folder structure
+          branch: gh-pages # The branch where your live site will live
