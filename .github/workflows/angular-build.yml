@@ -1,4 +1,4 @@
-name: Build & Deploy Angular (world → docs → GitHub Pages)
+name: Build & Deploy Angular (world → docs[/browser] → GitHub Pages)
 
 on:
   push:
@@ -27,13 +27,19 @@ jobs:
         with:
           node-version: 20
 
+      - name: Show tool versions
+        run: |
+          node -v
+          npm -v
+
+      # Install & build INSIDE /world
       - name: Install dependencies (world)
         working-directory: world
         run: npm install --no-audit --no-fund
 
       - name: Build Angular (→ world/docs)
         working-directory: world
-        run: npm run build
+        run: npm run build --verbose
 
       - name: Inspect build output
         working-directory: world
@@ -41,23 +47,35 @@ jobs:
           echo "Contents of world after build:"
           ls -la
           echo "Contents of world/docs (if exists):"
-          if [ -d docs ]; then ls -la docs; else echo "::warning::world/docs does not exist"; fi
+          if [ -d docs ]; then ls -la docs; fi
+          echo "Contents of world/docs/browser (if exists):"
+          if [ -d docs/browser ]; then ls -la docs/browser; fi
 
-      - name: Create 404.html (only if index.html exists)
+      # Detect where index.html actually is (docs/ or docs/browser/)
+      - name: Detect site directory
+        id: detect
         working-directory: world
         run: |
           if [ -f docs/index.html ]; then
-            cp docs/index.html docs/404.html
-            echo "Created docs/404.html"
+            echo "site_dir=world/docs" >> $GITHUB_OUTPUT
+            echo "Using site_dir=world/docs"
+          elif [ -f docs/browser/index.html ]; then
+            echo "site_dir=world/docs/browser" >> $GITHUB_OUTPUT
+            echo "Using site_dir=world/docs/browser"
           else
-            echo "::error::docs/index.html not found. The Angular build did not write to world/docs."
+            echo "::error::No index.html found in docs/ or docs/browser/. Check outputPath or build errors above."
             exit 1
           fi
 
-      - name: Upload docs
+      - name: Create 404.html in detected site_dir
+        run: cp "$SITE_DIR/index.html" "$SITE_DIR/404.html"
+        env:
+          SITE_DIR: ${{ steps.detect.outputs.site_dir }}
+
+      - name: Upload site_dir as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: world/docs/
+          path: ${{ steps.detect.outputs.site_dir }}
 
   deploy:
     needs: build
@@ -65,7 +83,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
