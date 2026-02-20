@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm' # Speeds up build and prevents hanging
+          # We removed the cache here to stop the "lock file not found" error
 
       - name: Install and Build
         run: |
@@ -25,5 +25,5 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/*/browser # Wildcard handles Angular 17+ folder structure
-          branch: gh-pages # The branch where your live site will live
+          folder: dist/*/browser
+          branch: gh-pages
