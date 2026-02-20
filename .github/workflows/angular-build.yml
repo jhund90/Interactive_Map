@@ -1,22 +1,56 @@
-name: Build Angular
-run: npm run build
+name: Build & Deploy Angular (world → docs → GitHub Pages)
 
-name: Create 404.html for GitHub Pages SPA routing
-run: cp docs/index.html docs/404.html
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
 
-name: Upload docs folder as Pages artifact
-uses: actions/upload-pages-artifact@v3
-with:
-  path: docs/
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-deploy:
-  needs: build
-  runs-on: ubuntu-latest
-  environment:
-    name: github-pages
-    url: ${{ steps.deployment.outputs.page_url }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      name: Deploy to GitHub Pages
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Install dependencies inside /world
+      - name: Install dependencies
+        working-directory: world
+        run: npm install --no-audit --no-fund
+
+      - name: Build Angular (production → docs/)
+        working-directory: world
+        run: npm run build
+
+      - name: Create 404.html for GitHub Pages SPA routing
+        working-directory: world
+        run: cp docs/index.html docs/404.html
+
+      # Upload /world/docs, not /docs
+      - name: Upload docs folder
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: world/docs/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-
+``
