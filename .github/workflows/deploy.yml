@@ -7,6 +7,9 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: world # <-- CHANGE THIS to your subfolder name
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,7 +18,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # We removed the cache here to stop the "lock file not found" error
 
       - name: Install and Build
         run: |
@@ -25,5 +27,5 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/*/browser
+          folder: YOUR_FOLDER_NAME/dist/*/browser # <-- ALSO CHANGE YOUR_FOLDER_NAME HERE
           branch: gh-pages
