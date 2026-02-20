@@ -10,6 +10,10 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,20 +27,22 @@ jobs:
         with:
           node-version: 20
 
-      # Install dependencies inside /world
+      # ⬇️ RUN npm install INSIDE /world
       - name: Install dependencies
         working-directory: world
         run: npm install --no-audit --no-fund
 
+      # ⬇️ BUILD Angular INSIDE /world
       - name: Build Angular (production → docs/)
         working-directory: world
         run: npm run build
 
-      - name: Create 404.html for GitHub Pages SPA routing
+      # ⬇️ CREATE 404.html INSIDE /world
+      - name: Create 404.html
         working-directory: world
         run: cp docs/index.html docs/404.html
 
-      # Upload /world/docs, not /docs
+      # ⬇️ UPLOAD /world/docs AS THE WEBSITE
       - name: Upload docs folder
         uses: actions/upload-pages-artifact@v3
         with:
@@ -50,7 +56,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-``
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
