@@ -27,9 +27,7 @@
             ],
             "styles": [
               "src/styles.css"
-            ],
-            
-// ✅ add these two lines:delete if needed
+            ],            
   "baseHref": "/Interactive_Map/",
   "deployUrl": "/Interactive_Map/"
 
