@@ -29,5 +29,5 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: YOUR_FOLDER_NAME/dist/*/browser # <-- Change this too
+          folder: world/dist/*/browser # <-- Change this too
           branch: gh-pages
