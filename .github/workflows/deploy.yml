@@ -1,0 +1,28 @@
+yaml
+name: Build and Deploy
+on:
+  push:
+    branches: [ main ] # Runs every time you save changes to main
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install and Build
+        run: |
+          npm install
+          npx ng build --configuration production --base-href /Interactive_Map/
+      - name: Fix for Angular 17+ Folder Structure
+        run: cp dist/world/browser/index.html dist/world/browser/404.html
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist/world/browser # This is where Angular 17+ puts files
+          branch: gh-pages # This creates a new "branch" for your live site
